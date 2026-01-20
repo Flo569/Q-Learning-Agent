@@ -42,8 +42,8 @@ class Gridworld:
             self.my_agent.epsilon *= 0.995
             self.my_agent.epsilon = max(self.my_agent.epsilon, 0.01)
 
-        #for key, value in self.my_agent.q_table.items():
-        #    print(key, "->", value)
+        for key, value in self.my_agent.q_table.items():
+            print(key, "->", value)
 
     def start_run(self):
 
@@ -58,6 +58,9 @@ class Gridworld:
             if new_state == self.target:
                 reward = 100
                 done = True
+            elif new_state == state:
+                reward = -10
+                done = False
             else:
                 reward = -1
                 done = False
