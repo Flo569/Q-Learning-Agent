@@ -1,30 +1,36 @@
 import random
-
+from settings import Settings
 
 class Agent:
 
-    def __init__(self, world_border):
+    def __init__(self, alpha: float, gamma: float, epsilon_main: float, epsilon_decay: float):
 
-        self.columns, self.rows = world_border
         self.position = (0, 0)
         self.score = 0
 
         self.q_table = {}
         self.actions = ["up", "down", "left", "right"]
 
-        self.alpha = 0.1
-        self.gamma = 0.9
-        self.epsilon = 1
+        self.alpha = alpha
+        self.gamma = gamma
+        self.epsilon_main = epsilon_main
+        self.epsilon_decay = epsilon_decay
 
-        for x in range(self.columns):
-            for y in range(self.rows):
+        for x in range(Settings.world.columns):
+            for y in range(Settings.world.rows):
                 for action in self.actions:
                     self.q_table[((x, y), action)] = 0
 
 
-    def choose_action(self, state):
+    def reset(self, start_pos: tuple[int, int]):
+        self.score = 0
+        self.position = start_pos
+        self.epsilon_main *= self.epsilon_decay
 
-        if random.random() < self.epsilon:
+
+    def choose_action(self, state: tuple[int, int]):
+
+        if random.random() < self.epsilon_main:
             return random.choice(self.actions)
         else:
             q_values = []
@@ -40,43 +46,33 @@ class Agent:
             return random.choice(best_action)
 
 
-    def learn(self, state, action, reward, new_state):
-
+    def learn(self, state: tuple[int, int], action: str, reward: int, new_state: tuple[int, int]):
+        self.score += reward
         key = (state, action)
-
         current_q = self.q_table.get(key, 0)
-
         max_future_q = max([self.q_table.get((new_state, a), 0) for a in self.actions])
-
         new_q = current_q + self.alpha * (reward + self.gamma * max_future_q - current_q)
-
         self.q_table[key] = new_q
 
 
-    def move(self, direction):
-
+    def move(self, action: str):
         dx = 0
         dy = 0
         x, y = self.position
 
-        if direction == "up":
+        if action == "up":
             dx = 0
             dy = -1
-        elif direction == "down":
+        elif action == "down":
             dx = 0
             dy = 1
-        elif direction == "left":
+        elif action == "left":
             dx = -1
             dy = 0
-        elif direction == "right":
+        elif action == "right":
             dx = 1
             dy = 0
 
-        if not x + dx < 0 and not x + dx >= self.columns:
-            x += dx
-
-        if not y + dy < 0 and not y + dy >= self.rows:
-            y += dy
-
-        self.score -= 1
+        x += dx
+        y += dy
         self.position = (x, y)

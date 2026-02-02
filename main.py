@@ -1,12 +1,12 @@
 import settings
 from settings import Settings
-import gridworld
 
 def main():
+    Settings.create_environment()
+    Settings.create_agent()
     settings.implement_layout()
     Settings.print_layout()
-    my_world = gridworld.Gridworld()
-    my_world.train(100)
+    Settings.world.train(Settings.episodes)
 
 if __name__ == "__main__":
     main()

@@ -1,8 +1,9 @@
+
 class Settings:
 
     # Training
-    episodes: int = 1000
-    max_steps_per_episode: int = 50
+    episodes: int = 100
+    max_steps_per_episode: int = 250
 
     # Agent
     alpha: float = 0.1
@@ -28,6 +29,12 @@ class Settings:
     # Overrides the layout settings!
     # Rows and columns must be all the same size!
 
+    # 0 = empty square
+    # 1 = start (only one)
+    # 2 = goal  (only one)
+    # 3 = wall  (auto built a border)
+    # 4 = bonus item
+
     # Example
     @staticmethod
     def example_layout():
@@ -44,13 +51,25 @@ class Settings:
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         ]
 
-    # Use None to apply the layout settings
+    # Use None to apply the layout settings -> ... = None
     layout: list[list[int]] = example_layout()
 
 
     ### From here on, there are methods that are not important for configuration.
     ### They are not part of the settings.
 
+    @classmethod
+    def create_agent(cls):
+        from agent import Agent
+        cls.agent: Agent = Agent(cls.alpha, cls.gamma, cls.epsilon_main, cls.epsilon_decay)
+
+    @classmethod
+    def create_environment(cls):
+        from environment import Gridworld
+        cls.world: Gridworld = Gridworld(cls.rows, cls.columns, cls.start_pos, cls.goal_pos, cls.wall_pos, cls.bonus_pos)
+
+    agent = None
+    world = None
 
     # Layout methods
     @classmethod
