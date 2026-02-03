@@ -8,8 +8,9 @@ class Settings:
     # Agent
     alpha: float = 0.1
     gamma: float = 0.9
-    epsilon_main: float = 0.2
+    epsilon_main: float = 1
     epsilon_decay: float = 0.99
+    epsilon_min: float = 0.1
 
     # Rewards
     step_reward: int = -1
@@ -52,7 +53,7 @@ class Settings:
         ]
 
     # Use None to apply the layout settings -> ... = None
-    layout: list[list[int]] = example_layout()
+    layout: list[list[int]] = None
 
 
     ### From here on, there are methods that are not important for configuration.
@@ -61,12 +62,12 @@ class Settings:
     @classmethod
     def create_agent(cls):
         from agent import Agent
-        cls.agent: Agent = Agent(cls.alpha, cls.gamma, cls.epsilon_main, cls.epsilon_decay)
+        cls.agent = Agent(cls.alpha, cls.gamma, cls.epsilon_main, cls.epsilon_decay, cls.epsilon_min)
 
     @classmethod
     def create_environment(cls):
         from environment import Gridworld
-        cls.world: Gridworld = Gridworld(cls.rows, cls.columns, cls.start_pos, cls.goal_pos, cls.wall_pos, cls.bonus_pos)
+        cls.world = Gridworld(cls.rows, cls.columns, cls.start_pos, cls.goal_pos, cls.wall_pos, cls.bonus_pos)
 
     agent = None
     world = None
@@ -90,9 +91,9 @@ class Settings:
                     cls.layout[y][x] = 1
                 elif pos == cls.goal_pos:
                     cls.layout[y][x] = 2
-                elif cls.wall_pos.__contains__(pos):
+                elif pos in cls.wall_pos:
                     cls.layout[y][x] = 3
-                elif cls.bonus_pos.__contains__(pos):
+                elif pos in cls.bonus_pos:
                     cls.layout[y][x] = 4
 
     @classmethod
@@ -122,6 +123,8 @@ class Settings:
 
 
 def implement_layout():
-    Settings.apply_layout()
-    Settings.default_layout()
-    Settings.apply_special_squares_to_layout()
+    Settings.apply_layout()                         # layout -> settings; if layout = None -> ignored
+    Settings.default_layout()                       # empty grid
+    Settings.apply_special_squares_to_layout()      # settings -> layout
+
+implement_layout()

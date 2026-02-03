@@ -3,7 +3,7 @@ from settings import Settings
 
 class Agent:
 
-    def __init__(self, alpha: float, gamma: float, epsilon_main: float, epsilon_decay: float):
+    def __init__(self, alpha: float, gamma: float, epsilon_main: float, epsilon_decay: float, epsilon_min: float):
 
         self.position = (0, 0)
         self.score = 0
@@ -15,6 +15,7 @@ class Agent:
         self.gamma = gamma
         self.epsilon_main = epsilon_main
         self.epsilon_decay = epsilon_decay
+        self.epsilon_min = epsilon_min
 
         for x in range(Settings.world.columns):
             for y in range(Settings.world.rows):
@@ -22,13 +23,13 @@ class Agent:
                     self.q_table[((x, y), action)] = 0
 
 
-    def reset(self, start_pos: tuple[int, int]):
+    def reset(self, start_pos):
         self.score = 0
         self.position = start_pos
-        self.epsilon_main *= self.epsilon_decay
+        self.epsilon_main *= max(self.epsilon_decay, self.epsilon_min)
 
 
-    def choose_action(self, state: tuple[int, int]):
+    def choose_action(self, state: tuple):
 
         if random.random() < self.epsilon_main:
             return random.choice(self.actions)
@@ -46,12 +47,18 @@ class Agent:
             return random.choice(best_action)
 
 
-    def learn(self, state: tuple[int, int], action: str, reward: int, new_state: tuple[int, int]):
-        self.score += reward
+    def learn(self, state: tuple, action: str, reward: int, new_state: tuple):
         key = (state, action)
         current_q = self.q_table.get(key, 0)
         max_future_q = max([self.q_table.get((new_state, a), 0) for a in self.actions])
         new_q = current_q + self.alpha * (reward + self.gamma * max_future_q - current_q)
+        self.q_table[key] = new_q
+
+
+    def terminal_learn(self, state: tuple, action: str, reward: int):
+        key = (state, action)
+        current_q = self.q_table.get(key, 0)
+        new_q = current_q + self.alpha * (reward - current_q)
         self.q_table[key] = new_q
 
 
@@ -61,17 +68,13 @@ class Agent:
         x, y = self.position
 
         if action == "up":
-            dx = 0
             dy = -1
         elif action == "down":
-            dx = 0
             dy = 1
         elif action == "left":
             dx = -1
-            dy = 0
         elif action == "right":
             dx = 1
-            dy = 0
 
         x += dx
         y += dy
