@@ -5,7 +5,6 @@ class Agent:
 
     def __init__(self, alpha: float, gamma: float, epsilon_main: float, epsilon_decay: float, epsilon_min: float):
 
-        self.position = (0, 0)
         self.score = 0
 
         self.q_table = {}

@@ -1,3 +1,4 @@
+from logger import Logger
 from settings import Settings
 
 def main():

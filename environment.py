@@ -1,10 +1,10 @@
+from logger import Logger
 from settings import Settings
 import copy
 
 class Gridworld:
 
-    def __init__(self, rows: int, columns: int, start: tuple[int, int], goal: tuple[int, int],
-                 walls: list[tuple[int, int]], bonus: list[tuple[int, int]]):
+    def __init__(self, rows: int, columns: int, start: tuple, goal: tuple, walls: list[tuple], bonus: list[tuple]):
 
         self.steps: int = 0
 
@@ -28,20 +28,24 @@ class Gridworld:
 
 
     def train(self, episodes: int):
+
+        if Settings.output_in_csv:
+            Logger.init_logger()
+            Logger.create_log_head()
+
         for i in range(episodes):
             self.reset()
-            self.start_run()
-        for key in Settings.agent.q_table:
-            print(key, Settings.agent.q_table[key])
+            self.start_run(i+1)
 
 
-    def start_run(self):
+    def start_run(self, episode: int):
         state = tuple(Settings.agent.position)         # initial state
 
         while True:
             self.steps += 1
             reward: int = 0
             done: bool = False
+            success: bool = False
 
             # choose action, move and reward
             action: str = Settings.agent.choose_action(state)
@@ -63,6 +67,7 @@ class Gridworld:
             elif self.goal_pos == (x, y):
                 reward += Settings.goal_reward
                 done = True
+                success = True
 
             # update state and learn
             new_state = Settings.agent.position
@@ -78,7 +83,10 @@ class Gridworld:
             # check for maximum steps
             if self.steps >= Settings.max_steps_per_episode:
                 done = True
+                success = False
 
             if done:
-                print('Score: ', Settings.agent.score, "\n Steps:", self.steps)
+                if Settings.output_in_csv:
+                    Logger.log_episode(episode, self.steps, Settings.agent.score, success, Settings.agent.epsilon_main,
+                                       Settings.agent.q_table)
                 break

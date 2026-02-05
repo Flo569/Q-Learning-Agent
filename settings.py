@@ -1,6 +1,41 @@
 
 class Settings:
 
+    # Logging
+    filename: str = "Test"
+    output_in_csv: bool = True
+    output_layout: bool = False
+    output_q_table: bool = False
+
+    logging_steps: int = 100
+
+    ignored_head_vars = {
+        "filename",
+        "output_in_csv",
+        "output_layout",
+        "output_q_table",
+        "logging_steps",
+        "ignored_head_vars",
+        "log_vars",
+        "rows",
+        "columns",
+        "start_pos",
+        "goal_pos",
+        "wall_pos",
+        "bonus_pos",
+        "layout",
+        "agent",
+        "world"
+    }
+
+    log_vars = [
+        "episode",
+        "avg_steps",
+        "avg_score",
+        "avg_success",
+        "avg_epsilon"
+    ]
+
     # Training
     episodes: int = 1000
     max_steps_per_episode: int = 250
@@ -21,10 +56,11 @@ class Settings:
     # Layout
     rows: int = 10
     columns: int = 10
-    start_pos: tuple[int, int] = (0, 0)
-    goal_pos: tuple[int, int] = (9, 9)
-    wall_pos: list[tuple[int, int]] = [(5, 5), (6, 5)]
-    bonus_pos: list[tuple[int, int]] = [(7, 7), (1, 2)]
+    size: str = f"{rows}x{columns}"
+    start_pos: tuple = (0, 0)
+    goal_pos: tuple = (9, 9)
+    wall_pos: list[tuple] = [(5, 5), (6, 5)]
+    bonus_pos: list[tuple] = [(7, 7), (1, 2)]
 
     # Custom layout for more complex designs.
     # Overrides the layout settings!
