@@ -1,7 +1,6 @@
 import csv
 import os
-from datetime import datetime
-from settings import Settings
+from q_learning.utils.settings import Settings
 
 class Logger:
 
@@ -15,26 +14,26 @@ class Logger:
     @classmethod
     def init_logger(cls):
         # logs-directory
-        if not os.path.exists("logs"):
-            os.makedirs("logs")
-        if not os.path.exists("logs/data"):
-            os.makedirs("logs/data")
-        if not os.path.exists("logs/layout"):
-            os.makedirs("logs/layout")
-        if not os.path.exists("logs/q_table"):
-            os.makedirs("logs/q_table")
-
+        if not os.path.exists("./logs"):
+            os.makedirs("./logs")
+        if not os.path.exists("./logs/data"):
+            os.makedirs("./logs/data")
+        if not os.path.exists("./logs/layout"):
+            os.makedirs("./logs/layout")
+        if not os.path.exists("./logs/q_table"):
+            os.makedirs("./logs/q_table")
 
         # filename
         if getattr(Settings, "filename", None) is None:
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            cls.name = f"{timestamp}"
+            cls.name = "unnamed"
         else:
             cls.name = f"{Settings.filename}"
-            version: int = 0
-            while os.path.exists(f"logs/data/training_{cls.name}.csv"):
-                version += 1
-                cls.name = f"({version})"
+        version: int = 0
+        while os.path.exists(f"logs/data/training_{cls.name}.csv"):
+            version += 1
+            test_name = f"{cls.name}({version})"
+            if not os.path.exists(f"logs/data/training_{test_name}.csv"):
+                cls.name = f"{cls.name}({version})"
 
         cls.filename = f"logs/data/training_{cls.name}.csv"
 
@@ -53,6 +52,7 @@ class Logger:
                 writer.writerow(header)
                 writer.writerow(getattr(Settings, name) for name in header)
 
+        # q-table
         cls.q_table_name = f"logs/q_table/table_{cls.name}.csv"
 
         if Settings.output_q_table:
@@ -65,7 +65,6 @@ class Logger:
         ALLOWED_TYPES = (int, float, str, bool, tuple, list)
 
         cls.header = []
-
         for name, value in Settings.__dict__.items():
 
             if name.startswith("__"):

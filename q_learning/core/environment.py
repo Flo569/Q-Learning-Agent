@@ -1,11 +1,19 @@
-from logger import Logger
-from settings import Settings
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from q_learning.core.agent import Agent
+
+from q_learning.utils.logger import Logger
+from q_learning.utils.settings import Settings
 import copy
+
 
 class Gridworld:
 
-    def __init__(self, rows: int, columns: int, start: tuple, goal: tuple, walls: list[tuple], bonus: list[tuple]):
+    def __init__(self, agent, rows: int, columns: int, start: tuple, goal: tuple, walls: list[tuple], bonus: list[tuple]):
 
+        self.agent: Agent = agent
         self.steps: int = 0
 
         self.columns: int = columns
@@ -16,6 +24,8 @@ class Gridworld:
         self.walls_pos = copy.deepcopy(walls)
         self.bonus_pos = copy.deepcopy(bonus)
 
+        agent.init(self.rows, self.columns)
+
 
     def reset(self):
         self.start_pos = Settings.start_pos
@@ -23,7 +33,7 @@ class Gridworld:
         self.walls_pos = copy.deepcopy(Settings.wall_pos)
         self.bonus_pos = copy.deepcopy(Settings.bonus_pos)
 
-        Settings.agent.reset(self.start_pos)
+        self.agent.reset(self.start_pos)
         self.steps = 0
 
 
@@ -39,7 +49,7 @@ class Gridworld:
 
 
     def start_run(self, episode: int):
-        state = tuple(Settings.agent.position)         # initial state
+        state = tuple(self.agent.position)         # initial state
 
         while True:
             self.steps += 1
@@ -48,15 +58,15 @@ class Gridworld:
             success: bool = False
 
             # choose action, move and reward
-            action: str = Settings.agent.choose_action(state)
-            Settings.agent.move(action)
+            action: str = self.agent.choose_action(state)
+            self.agent.move(action)
             reward += Settings.step_reward
 
             # check invalid action -> outside the world or wall
-            x, y = Settings.agent.position
+            x, y = self.agent.position
             if (x < 0 or x >= self.columns) or (y < 0 or y >= self.rows) or ((x, y) in self.walls_pos):
                 reward += Settings.invalid_reward
-                Settings.agent.position = state
+                self.agent.position = state
 
             # check for bonus item
             elif (x, y) in self.bonus_pos:
@@ -70,15 +80,15 @@ class Gridworld:
                 success = True
 
             # update state and learn
-            new_state = Settings.agent.position
+            new_state = self.agent.position
 
-            Settings.agent.score += reward
+            self.agent.score += reward
 
-            if not done:
-                Settings.agent.learn(state, action, reward, new_state)
-                state = tuple(new_state)
+            if done:
+                self.agent.terminal_learn(state, action, reward)
             else:
-                Settings.agent.terminal_learn(state, action, reward)
+                self.agent.learn(state, action, reward, new_state)
+                state = tuple(new_state)
 
             # check for maximum steps
             if self.steps >= Settings.max_steps_per_episode:
@@ -87,6 +97,6 @@ class Gridworld:
 
             if done:
                 if Settings.output_in_csv:
-                    Logger.log_episode(episode, self.steps, Settings.agent.score, success, Settings.agent.epsilon_main,
-                                       Settings.agent.q_table)
+                    Logger.log_episode(episode, self.steps, self.agent.score, success,
+                                       self.agent.epsilon_main, self.agent.q_table)
                 break

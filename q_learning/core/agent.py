@@ -1,9 +1,11 @@
 import random
-from settings import Settings
+from q_learning.utils.settings import Settings
 
 class Agent:
 
     def __init__(self, alpha: float, gamma: float, epsilon_main: float, epsilon_decay: float, epsilon_min: float):
+
+        self.position = Settings.start_pos
 
         self.score = 0
 
@@ -16,8 +18,10 @@ class Agent:
         self.epsilon_decay = epsilon_decay
         self.epsilon_min = epsilon_min
 
-        for x in range(Settings.world.columns):
-            for y in range(Settings.world.rows):
+
+    def init(self, rows: int, columns: int):
+        for x in range(columns):
+            for y in range(rows):
                 for action in self.actions:
                     self.q_table[((x, y), action)] = 0
 
@@ -54,6 +58,7 @@ class Agent:
         self.q_table[key] = new_q
 
 
+    # learn without future-prediction -> cause last learn
     def terminal_learn(self, state: tuple, action: str, reward: int):
         key = (state, action)
         current_q = self.q_table.get(key, 0)

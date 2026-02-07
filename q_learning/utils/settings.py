@@ -1,14 +1,9 @@
 
+# use this module to set variables
+
 class Settings:
 
     # Logging
-    filename: str = "Test"
-    output_in_csv: bool = True
-    output_layout: bool = False
-    output_q_table: bool = False
-
-    logging_steps: int = 100
-
     ignored_head_vars = {
         "filename",
         "output_in_csv",
@@ -24,10 +19,7 @@ class Settings:
         "wall_pos",
         "bonus_pos",
         "layout",
-        "agent",
-        "world"
     }
-
     log_vars = [
         "episode",
         "avg_steps",
@@ -36,11 +28,18 @@ class Settings:
         "avg_epsilon"
     ]
 
+    filename: str = None
+    output_in_csv: bool = True
+    output_layout: bool = False
+    output_q_table: bool = True
+
+    logging_steps: int = 100
+
     # Training
     episodes: int = 1000
     max_steps_per_episode: int = 250
 
-    # Agent
+    # Agent-parameters
     alpha: float = 0.1
     gamma: float = 0.9
     epsilon_main: float = 1
@@ -62,17 +61,8 @@ class Settings:
     wall_pos: list[tuple] = [(5, 5), (6, 5)]
     bonus_pos: list[tuple] = [(7, 7), (1, 2)]
 
-    # Custom layout for more complex designs.
+    # Custom layout
     # Overrides the layout settings!
-    # Rows and columns must be all the same size!
-
-    # 0 = empty square
-    # 1 = start (only one)
-    # 2 = goal  (only one)
-    # 3 = wall  (auto built a border)
-    # 4 = bonus item
-
-    # Example
     @staticmethod
     def example_layout():
         return [
@@ -87,26 +77,30 @@ class Settings:
             [0, 3, 0, 0, 0, 0, 3, 0, 0, 0],
             [0, 3, 0, 0, 0, 0, 3, 0, 2, 0]
         ]
+    # 0 = empty square
+    # 1 = start (only one)
+    # 2 = goal  (only one)
+    # 3 = wall  (auto built a border around the grid)
+    # 4 = bonus item
 
     # Use None to apply the layout settings -> ... = None
-    layout: list[list[int]] = None
+    layout: list[list[int]] = example_layout()
 
 
     ### From here on, there are methods that are not important for configuration.
     ### They are not part of the settings.
 
-    @classmethod
-    def create_agent(cls):
-        from agent import Agent
-        cls.agent = Agent(cls.alpha, cls.gamma, cls.epsilon_main, cls.epsilon_decay, cls.epsilon_min)
 
     @classmethod
-    def create_environment(cls):
-        from environment import Gridworld
-        cls.world = Gridworld(cls.rows, cls.columns, cls.start_pos, cls.goal_pos, cls.wall_pos, cls.bonus_pos)
+    def start(cls):
+        from q_learning.core.agent import Agent
+        agent = Agent(cls.alpha, cls.gamma, cls.epsilon_main, cls.epsilon_decay, cls.epsilon_min)
 
-    agent = None
-    world = None
+        from q_learning.core.environment import Gridworld
+        world = Gridworld(agent, cls.rows, cls.columns, cls.start_pos, cls.goal_pos, cls.wall_pos, cls.bonus_pos)
+
+        world.train(cls.episodes)
+
 
     # Layout methods
     @classmethod
@@ -114,9 +108,11 @@ class Settings:
         for row in cls.layout:
             print(row)
 
+
     @classmethod
     def default_layout(cls):
         cls.layout = [[0 for _ in range(cls.columns)] for _ in range(cls.rows)]
+
 
     @classmethod
     def apply_special_squares_to_layout(cls):
@@ -131,6 +127,7 @@ class Settings:
                     cls.layout[y][x] = 3
                 elif pos in cls.bonus_pos:
                     cls.layout[y][x] = 4
+
 
     @classmethod
     def apply_special_squares_to_setting(cls):
@@ -151,6 +148,7 @@ class Settings:
                     cls.wall_pos.append(pos)
                 elif square_id == 4:
                     cls.bonus_pos.append(pos)
+
 
     @classmethod
     def apply_layout(cls):
