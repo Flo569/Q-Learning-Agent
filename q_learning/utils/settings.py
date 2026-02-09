@@ -35,10 +35,10 @@ class Settings:
     output_detailed_log: bool = True
     output_q_table: bool = False
 
-    logging_steps: int = 50
+    logging_steps: int = 200
 
     # Training
-    episodes: int = 500
+    episodes: int = 2000
     max_steps_per_episode: int = 250
 
     # Agent-parameters
@@ -55,11 +55,11 @@ class Settings:
     bonus_reward: int = 10
 
     # Layout
-    rows: int = 10
-    columns: int = 10
+    rows: int = 20
+    columns: int = 20
     size: str = f"{rows}x{columns}"
     start_pos: tuple = (0, 0)
-    goal_pos: tuple = (9, 9)
+    goal_pos: tuple = (19, 19)
     wall_pos: list[tuple] = []
     bonus_pos: list[tuple] = []
 
