@@ -29,16 +29,16 @@ class Settings:
         "avg_epsilon"
     ]
 
-    filename: str = "Size1"
+    filename: str = "Size"
     output_in_csv: bool = True
     output_layout: bool = True
     output_detailed_log: bool = True
-    output_q_table: bool = True
+    output_q_table: bool = False
 
-    logging_steps: int = 100
+    logging_steps: int = 50
 
     # Training
-    episodes: int = 1000
+    episodes: int = 500
     max_steps_per_episode: int = 250
 
     # Agent-parameters
@@ -55,11 +55,11 @@ class Settings:
     bonus_reward: int = 10
 
     # Layout
-    rows: int = 5
-    columns: int = 5
+    rows: int = 10
+    columns: int = 10
     size: str = f"{rows}x{columns}"
     start_pos: tuple = (0, 0)
-    goal_pos: tuple = (4, 4)
+    goal_pos: tuple = (9, 9)
     wall_pos: list[tuple] = []
     bonus_pos: list[tuple] = []
 
