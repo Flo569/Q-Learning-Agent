@@ -84,6 +84,9 @@ class Gridworld:
 
             self.agent.score += reward
 
+            if Settings.output_detailed_log:
+                Logger.log_details(done, episode, state, action, reward, new_state)
+
             if done:
                 self.agent.terminal_learn(state, action, reward)
             else:

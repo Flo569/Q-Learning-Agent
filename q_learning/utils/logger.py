@@ -11,6 +11,11 @@ class Logger:
     success_sum: int = 0
     epsilon_sum: int = 0
 
+    states = []
+    actions = []
+    rewards = []
+    new_states = []
+
     @classmethod
     def init_logger(cls):
         # logs-directory
@@ -22,6 +27,8 @@ class Logger:
             os.makedirs("./logs/layout")
         if not os.path.exists("./logs/q_table"):
             os.makedirs("./logs/q_table")
+        if not os.path.exists("./logs/detailed_log"):
+            os.makedirs("./logs/detailed_log")
 
         # filename
         if getattr(Settings, "filename", None) is None:
@@ -61,6 +68,15 @@ class Logger:
                 writer.writerow(["episode", "q_table"])
 
 
+        # detailed-log
+        cls.detail_name = f"logs/detailed_log/details_{cls.name}.csv"
+
+        if Settings.output_detailed_log:
+            with open(cls.detail_name, mode='a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(["episode", "state", "action", "reward", "new_state"])
+
+
         # head for settings
         ALLOWED_TYPES = (int, float, str, bool, tuple, list)
 
@@ -85,6 +101,25 @@ class Logger:
             writer.writerow(getattr(Settings, name) for name in cls.header)
             writer.writerow([])
             writer.writerow(Settings.log_vars)
+
+
+    @classmethod
+    def log_details(cls, done: bool, episode: int, state: tuple, action: str, reward: int, new_state: tuple):
+        if episode % Settings.logging_steps == 0 or episode == 1:
+            cls.states.append(state)
+            cls.actions.append(action)
+            cls.rewards.append(reward)
+            cls.new_states.append(new_state)
+
+            if done:
+                with open(cls.detail_name, mode='a', newline='') as file:
+                    writer = csv.writer(file)
+                    writer.writerow([episode, cls.states, cls.actions, cls.rewards, cls.new_states])
+
+                cls.states.clear()
+                cls.actions.clear()
+                cls.rewards.clear()
+                cls.new_states.clear()
 
 
     @classmethod

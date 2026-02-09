@@ -9,6 +9,7 @@ class Settings:
         "output_in_csv",
         "output_layout",
         "output_q_table",
+        "output_detailed_log",
         "logging_steps",
         "ignored_head_vars",
         "log_vars",
@@ -31,6 +32,7 @@ class Settings:
     filename: str = "Size1"
     output_in_csv: bool = True
     output_layout: bool = True
+    output_detailed_log: bool = True
     output_q_table: bool = True
 
     logging_steps: int = 100
