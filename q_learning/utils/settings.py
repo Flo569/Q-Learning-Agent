@@ -29,24 +29,24 @@ class Settings:
         "avg_epsilon"
     ]
 
-    filename: str = "Size"
+    filename: str = "Size(20x20)"
     output_in_csv: bool = True
     output_layout: bool = True
     output_detailed_log: bool = True
     output_q_table: bool = False
 
-    logging_steps: int = 200
+    logging_steps: int = 100
 
     # Training
-    episodes: int = 2000
-    max_steps_per_episode: int = 250
+    episodes: int = 1000
+    max_steps_per_episode: int = 100
 
     # Agent-parameters
     alpha: float = 0.3
     gamma: float = 0.8
     epsilon_main: float = 1
     epsilon_decay: float = 0.995
-    epsilon_min: float = 0.0
+    epsilon_min: float = 0.1
 
     # Rewards
     step_reward: int = -1
