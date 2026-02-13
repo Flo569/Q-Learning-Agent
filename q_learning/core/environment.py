@@ -47,6 +47,12 @@ class Gridworld:
             self.reset()
             self.start_run(i+1)
 
+        # final run
+        self.reset()
+        self.agent.epsilon_main = 0
+        self.agent.epsilon_min = 0
+        self.start_run(episodes + 1)
+
 
     def start_run(self, episode: int):
         state = tuple(self.agent.position)         # initial state
@@ -84,7 +90,7 @@ class Gridworld:
 
             self.agent.score += reward
 
-            if Settings.output_detailed_log:
+            if Settings.output_detailed_log and Settings.output_in_csv:
                 Logger.log_details(done, episode, state, action, reward, new_state)
 
             if done:
