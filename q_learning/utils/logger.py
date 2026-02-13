@@ -105,7 +105,7 @@ class Logger:
 
     @classmethod
     def log_details(cls, done: bool, episode: int, state: tuple, action: str, reward: int, new_state: tuple):
-        if episode % Settings.logging_steps == 0 or episode == 1:
+        if episode % Settings.logging_steps == 0 or episode == 1 or episode == Settings.episodes + 1:
             cls.states.append(state)
             cls.actions.append(action)
             cls.rewards.append(reward)
@@ -129,7 +129,7 @@ class Logger:
         cls.success_sum += success
         cls.epsilon_sum += epsilon
 
-        if episode % Settings.logging_steps == 0:
+        if episode % Settings.logging_steps == 0 or episode == Settings.episodes + 1:
             passed_episodes = episode - cls.last_episode
 
             avg_steps = cls.steps_sum / passed_episodes
