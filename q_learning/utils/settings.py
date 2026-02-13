@@ -29,55 +29,55 @@ class Settings:
         "avg_epsilon"
     ]
 
-    filename: str = "Size"
+    filename: str = "Bonus"
     output_in_csv: bool = True
-    output_layout: bool = True
+    output_layout: bool = False
     output_detailed_log: bool = True
     output_q_table: bool = False
 
-    logging_steps: int = 200
+    logging_steps: int = 15000
 
     # Training
-    episodes: int = 2000
-    max_steps_per_episode: int = 250
+    episodes: int = 150000
+    max_steps_per_episode: int = 500
 
     # Agent-parameters
     alpha: float = 0.3
-    gamma: float = 0.8
+    gamma: float = 0.9
     epsilon_main: float = 1
-    epsilon_decay: float = 0.995
-    epsilon_min: float = 0.0
+    epsilon_decay: float = 0.99995
+    epsilon_min: float = 0.1
 
     # Rewards
     step_reward: int = -1
     goal_reward: int = 100
     invalid_reward: int = -10
-    bonus_reward: int = 10
+    bonus_reward: int = 50
 
     # Layout
-    rows: int = 20
-    columns: int = 20
+    rows: int = 10
+    columns: int = 10
     size: str = f"{rows}x{columns}"
     start_pos: tuple = (0, 0)
-    goal_pos: tuple = (19, 19)
+    goal_pos: tuple = (9, 9)
     wall_pos: list[tuple] = []
     bonus_pos: list[tuple] = []
 
     # Custom layout
     # Overrides the layout settings!
     @staticmethod
-    def example_layout():
+    def bonus_layout():
         return [
-            [1, 3, 0, 0, 0, 0, 0, 3, 0, 0],
-            [0, 3, 0, 3, 3, 3, 0, 3, 0, 0],
-            [0, 3, 0, 3, 0, 0, 0, 3, 0, 0],
-            [0, 3, 0, 3, 0, 3, 3, 0, 0, 0],
-            [0, 0, 0, 3, 0, 0, 0, 0, 0, 0],
-            [0, 3, 3, 3, 0, 0, 0, 0, 0, 0],
-            [0, 3, 0, 0, 0, 0, 3, 0, 0, 0],
-            [0, 3, 0, 0, 0, 0, 3, 0, 0, 0],
-            [0, 3, 0, 0, 0, 0, 3, 0, 0, 0],
-            [0, 3, 0, 0, 0, 0, 3, 0, 2, 0]
+            [3, 3, 3, 3, 1, 3, 3, 3, 3, 3],
+            [4, 0, 0, 0, 0, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 0, 0, 0 ,0, 4, 3],
+            [4, 0, 0, 0, 0, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 0, 0 ,0 ,0, 4, 3],
+            [4, 0, 0, 0, 0, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 0, 0 ,0 ,0, 4, 3],
+            [4, 0, 0, 0, 0, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 0, 0 ,0 ,0, 4, 3],
+            [3, 3, 3, 3, 2, 3, 3, 3, 3, 3],
         ]
     # 0 = empty square
     # 1 = start (only one)
@@ -86,7 +86,7 @@ class Settings:
     # 4 = bonus item
 
     # Use None to apply the layout settings -> ... = None
-    layout: list[list[int]] = None
+    layout: list[list[int]] = bonus_layout()
 
 
     ### From here on, there are methods that are not important for configuration.

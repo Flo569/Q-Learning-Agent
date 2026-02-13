@@ -6,6 +6,9 @@ class Agent:
     def __init__(self, alpha: float, gamma: float, epsilon_main: float, epsilon_decay: float, epsilon_min: float):
 
         self.position = Settings.start_pos
+        self.collected_mask: int = 0
+
+        self.bonus_pos_bit: dict = {}
 
         self.score = 0
 
@@ -20,14 +23,20 @@ class Agent:
 
 
     def init(self, rows: int, columns: int):
+
         for x in range(columns):
             for y in range(rows):
-                for action in self.actions:
-                    self.q_table[((x, y), action)] = 0
+                for bonus_mask in range(2**len(Settings.bonus_pos)):
+                     for action in self.actions:
+                         self.q_table[(((x, y), bonus_mask), action)] = 0
+
+        for bonus in Settings.bonus_pos:
+            self.bonus_pos_bit[bonus] = 2**(Settings.bonus_pos.index(bonus))
 
 
     def reset(self, start_pos):
         self.score = 0
+        self.collected_mask = 0
         self.position = start_pos
         self.epsilon_main *= max(self.epsilon_decay, self.epsilon_min)
 

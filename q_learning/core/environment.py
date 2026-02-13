@@ -49,7 +49,7 @@ class Gridworld:
 
 
     def start_run(self, episode: int):
-        state = tuple(self.agent.position)         # initial state
+        state = tuple((self.agent.position, self.agent.collected_mask))       # initial state
 
         while True:
             self.steps += 1
@@ -66,11 +66,12 @@ class Gridworld:
             x, y = self.agent.position
             if (x < 0 or x >= self.columns) or (y < 0 or y >= self.rows) or ((x, y) in self.walls_pos):
                 reward += Settings.invalid_reward
-                self.agent.position = state
+                self.agent.position, self.agent.collected_mask = state
 
             # check for bonus item
             elif (x, y) in self.bonus_pos:
                 reward += Settings.bonus_reward
+                self.agent.collected_mask += self.agent.bonus_pos_bit.get((x, y))
                 self.bonus_pos.remove((x, y))           # remove item, only one-time-collectable
 
             # check for finishing the task
@@ -80,7 +81,7 @@ class Gridworld:
                 success = True
 
             # update state and learn
-            new_state = self.agent.position
+            new_state = (self.agent.position, self.agent.collected_mask)
 
             self.agent.score += reward
 
