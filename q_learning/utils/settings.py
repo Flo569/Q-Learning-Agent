@@ -29,24 +29,24 @@ class Settings:
         "avg_epsilon"
     ]
 
-    filename: str = "Bonus"
+    filename: str = "Bonus1"
     output_in_csv: bool = True
-    output_layout: bool = False
+    output_layout: bool = True
     output_detailed_log: bool = True
     output_q_table: bool = False
 
-    logging_steps: int = 15000
+    logging_steps: int = 5000
 
     # Training
-    episodes: int = 150000
+    episodes: int = 50000
     max_steps_per_episode: int = 500
 
     # Agent-parameters
     alpha: float = 0.3
-    gamma: float = 0.9
+    gamma: float = 0.95
     epsilon_main: float = 1
     epsilon_decay: float = 0.99995
-    epsilon_min: float = 0.1
+    epsilon_min: float = 0.3
 
     # Rewards
     step_reward: int = -1
@@ -69,14 +69,14 @@ class Settings:
     def bonus_layout():
         return [
             [3, 3, 3, 3, 1, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 0, 3, 3, 3, 3, 3],
             [4, 0, 0, 0, 0, 3, 3, 3, 3, 3],
-            [3, 3, 3, 3, 0, 0, 0 ,0, 4, 3],
+            [3, 3, 3, 3, 0, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 0, 0, 0, 0, 4, 3],
+            [3, 3, 3, 3, 0, 3, 3, 3, 3, 3],
             [4, 0, 0, 0, 0, 3, 3, 3, 3, 3],
-            [3, 3, 3, 3, 0, 0 ,0 ,0, 4, 3],
-            [4, 0, 0, 0, 0, 3, 3, 3, 3, 3],
-            [3, 3, 3, 3, 0, 0 ,0 ,0, 4, 3],
-            [4, 0, 0, 0, 0, 3, 3, 3, 3, 3],
-            [3, 3, 3, 3, 0, 0 ,0 ,0, 4, 3],
+            [3, 3, 3, 3, 0, 3, 3, 3, 3, 3],
+            [3, 3, 3, 3, 0, 0, 0, 0, 4, 3],
             [3, 3, 3, 3, 2, 3, 3, 3, 3, 3],
         ]
     # 0 = empty square
