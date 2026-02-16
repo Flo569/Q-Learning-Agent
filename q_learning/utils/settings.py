@@ -29,7 +29,7 @@ class Settings:
         "avg_epsilon"
     ]
 
-    filename: str = "Size1"
+    filename: str = "Random"
     output_in_csv: bool = True
     output_layout: bool = True
     output_detailed_log: bool = True
@@ -55,11 +55,11 @@ class Settings:
     bonus_reward: int = 10
 
     # Layout
-    rows: int = 5
-    columns: int = 5
+    rows: int = 10
+    columns: int = 10
     size: str = f"{rows}x{columns}"
     start_pos: tuple = (0, 0)
-    goal_pos: tuple = (4, 4)
+    goal_pos: tuple = (9, 9)
     wall_pos: list[tuple] = []
     bonus_pos: list[tuple] = []
 

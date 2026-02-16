@@ -1,4 +1,5 @@
 from __future__ import annotations
+import random
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -28,10 +29,17 @@ class Gridworld:
 
 
     def reset(self):
-        self.start_pos = Settings.start_pos
-        self.goal_pos = Settings.goal_pos
+
+        self.start_pos = (random.randint(0, self.columns-1), random.randint(0, self.rows-1))
+        self.goal_pos = (random.randint(0, self.columns-1), random.randint(0, self.rows-1))
         self.walls_pos = copy.deepcopy(Settings.wall_pos)
         self.bonus_pos = copy.deepcopy(Settings.bonus_pos)
+
+        while self.start_pos in (self.walls_pos + self.bonus_pos):
+            self.start_pos = (random.randint(0, self.columns-1), random.randint(0, self.rows-1))
+
+        while self.start_pos == self.goal_pos or self.goal_pos in (self.walls_pos + self.bonus_pos):
+            self.goal_pos = (random.randint(0, self.columns-1), random.randint(0, self.rows-1))
 
         self.agent.reset(self.start_pos)
         self.steps = 0
@@ -90,9 +98,6 @@ class Gridworld:
 
             self.agent.score += reward
 
-            if Settings.output_detailed_log and Settings.output_in_csv:
-                Logger.log_details(done, episode, state, action, reward, new_state)
-
             if done:
                 self.agent.terminal_learn(state, action, reward)
             else:
@@ -104,8 +109,11 @@ class Gridworld:
                 done = True
                 success = False
 
+            if Settings.output_detailed_log and Settings.output_in_csv:
+                Logger.log_details(done, episode, state, action, reward, new_state, self.start_pos, self.goal_pos)
+
             if done:
                 if Settings.output_in_csv:
-                    Logger.log_episode(episode, self.steps, self.agent.score, success,
-                                       self.agent.epsilon_main, self.agent.q_table)
+                    Logger.log_episode(episode, self.steps, self.agent.score, success, self.agent.epsilon_main,
+                                       self.agent.q_table)
                 break
