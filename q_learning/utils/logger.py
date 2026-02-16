@@ -74,7 +74,7 @@ class Logger:
         if Settings.output_detailed_log:
             with open(cls.detail_name, mode='a', newline='') as file:
                 writer = csv.writer(file)
-                writer.writerow(["episode", "state", "action", "reward", "new_state", "start_pos", "goal_pos"])
+                writer.writerow(["episode", "state", "action", "reward", "new_state"])
 
 
         # head for settings
@@ -104,9 +104,7 @@ class Logger:
 
 
     @classmethod
-    def log_details(cls, done: bool, episode: int, state: tuple, action: str, reward: int, new_state: tuple,
-                    start: tuple, goal: tuple):
-
+    def log_details(cls, done: bool, episode: int, state: tuple, action: str, reward: int, new_state: tuple):
         if episode % Settings.logging_steps == 0 or episode == 1 or episode == Settings.episodes + 1:
             cls.states.append(state)
             cls.actions.append(action)
@@ -116,7 +114,7 @@ class Logger:
             if done:
                 with open(cls.detail_name, mode='a', newline='') as file:
                     writer = csv.writer(file)
-                    writer.writerow([episode, cls.states, cls.actions, cls.rewards, cls.new_states, start, goal])
+                    writer.writerow([episode, cls.states, cls.actions, cls.rewards, cls.new_states])
 
                 cls.states.clear()
                 cls.actions.clear()
