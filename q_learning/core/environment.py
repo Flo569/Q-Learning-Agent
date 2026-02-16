@@ -90,9 +90,6 @@ class Gridworld:
 
             self.agent.score += reward
 
-            if Settings.output_detailed_log and Settings.output_in_csv:
-                Logger.log_details(done, episode, state, action, reward, new_state)
-
             if done:
                 self.agent.terminal_learn(state, action, reward)
             else:
@@ -103,6 +100,9 @@ class Gridworld:
             if self.steps >= Settings.max_steps_per_episode:
                 done = True
                 success = False
+
+            if Settings.output_detailed_log and Settings.output_in_csv:
+                Logger.log_details(done, episode, state, action, reward, new_state)
 
             if done:
                 if Settings.output_in_csv:
