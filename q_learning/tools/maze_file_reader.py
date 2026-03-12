@@ -1,8 +1,10 @@
 
+# reads the content of a file and puts it into a list
+
 def load_maze(directory: str, filename: str):
     maze = []
 
-    filename = f"mazes/{directory}/{filename}.txt"
+    filename = f"mazes/{directory}/{filename}"
 
     with open(filename, "r") as file:
         for line in file:

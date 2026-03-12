@@ -1,9 +1,10 @@
 import random
 
-directory: str = "default"
-filename: str = "maze_9"
+directory: str = "test"
+filename: str = "test_4"
 
-SIZE = 21
+# odd numbers only -> works better
+SIZE = 11
 
 
 def generate_maze(size):
