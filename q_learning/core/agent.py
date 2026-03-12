@@ -3,51 +3,67 @@ from q_learning.utils.settings import Settings
 
 class Agent:
 
-    def __init__(self, alpha: float, gamma: float, epsilon_main: float, epsilon_decay: float, epsilon_min: float):
+    def __init__(self):
+
+        self.q_table: dict = {}
+        self.actions: list = ["up", "down", "left", "right"]
+
+        # default values
+        self.position: tuple = (0, 0)      # (x, y)
+        self.score: int = 0
+        self.steps: int = 0
+
+        self.alpha: float = 0
+        self.gamma: float = 0
+        self.epsilon_main: float = 0
+        self.epsilon_decay: float = 0
+        self.epsilon_min: float = 0
+
+
+    # Resets Agent to start-values after the maze changed
+    def init(self, rows: int, columns: int):
 
         self.position = Settings.start_pos
-
         self.score = 0
+        self.steps = 0
 
-        self.q_table = {}
-        self.actions = ["up", "down", "left", "right"]
+        self.alpha = Settings.alpha
+        self.gamma = Settings.gamma
+        self.epsilon_main = Settings.epsilon_main
+        self.epsilon_decay = Settings.epsilon_decay
+        self.epsilon_min = Settings.epsilon_min
 
-        self.alpha = alpha
-        self.gamma = gamma
-        self.epsilon_main = epsilon_main
-        self.epsilon_decay = epsilon_decay
-        self.epsilon_min = epsilon_min
-
-
-    def init(self, rows: int, columns: int):
         for x in range(columns):
             for y in range(rows):
                 for action in self.actions:
                     self.q_table[((x, y), action)] = 0
 
 
+    # Resets the agent everytime he ends a run
     def reset(self, start_pos):
         self.score = 0
+        self.steps = 0
         self.position = start_pos
         self.epsilon_main *= max(self.epsilon_decay, self.epsilon_min)
 
 
     def choose_action(self, state: tuple):
 
-        if random.random() < self.epsilon_main:
+        if random.random() < self.epsilon_main:             # random based on epsilon_main
             return random.choice(self.actions)
+
         else:
             q_values = []
 
-            for action in self.actions:
+            for action in self.actions:                     # get q_value for each action
                 key = (state, action)
                 q = self.q_table.get(key, 0)
                 q_values.append((q, action))
 
-            max_q = max(q_values, key=lambda x : x[0])[0]
-            best_action = [a for (q, a) in q_values if q == max_q]
+            max_q = max(q_values, key=lambda x : x[0])[0]               # searches the highest value
+            best_action = [a for (q, a) in q_values if q == max_q]      # choose action based on highest value
 
-            return random.choice(best_action)
+            return random.choice(best_action)               # choose one of the best actions
 
 
     def learn(self, state: tuple, action: str, reward: int, new_state: tuple):
@@ -66,20 +82,17 @@ class Agent:
         self.q_table[key] = new_q
 
 
+    # changes (x, y) based on action
     def move(self, action: str):
-        dx = 0
-        dy = 0
         x, y = self.position
 
         if action == "up":
-            dy = -1
+            y -= 1
         elif action == "down":
-            dy = 1
+            y += 1
         elif action == "left":
-            dx = -1
+            x -= 1
         elif action == "right":
-            dx = 1
+            x += 1
 
-        x += dx
-        y += dy
         self.position = (x, y)
