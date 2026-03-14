@@ -1,4 +1,6 @@
 /.idea/
 **/__pycache__/
 /logs/
+/mazes/*
+!mazes/default/
 *.pyc
