@@ -8,6 +8,9 @@ class Agent:
         self.q_table: dict = {}
         self.actions: list = ["up", "down", "left", "right"]
 
+        self.collected_mask: int = 0
+        self.bonus_pos_bit: dict = {}
+
         # default values
         self.position: tuple = (0, 0)      # (x, y)
         self.score: int = 0
@@ -25,7 +28,6 @@ class Agent:
 
         self.position = Settings.start_pos
         self.collected_mask: int = 0
-
         self.bonus_pos_bit: dict = {}
 
         self.score = 0

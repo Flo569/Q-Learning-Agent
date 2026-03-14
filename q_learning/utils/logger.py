@@ -11,12 +11,14 @@ class Logger:
     score_sum: int = 0
     success_sum: int = 0
     epsilon_sum: int = 0
+    bitmask_sum: int = 0
 
     # lists to save the averages values between the mazes
     steps_avg: list = []
     score_avg: list = []
     success_avg: list = []
     epsilon_avg: list = []
+    bitmask_avg: list = []
 
     # lists to save multiple values over one run for detailed log
     states = []
@@ -168,13 +170,14 @@ class Logger:
 
 
     @classmethod
-    def log_episode(cls, episode: int, steps: int, score: int, success: bool, epsilon: float):
+    def log_episode(cls, episode: int, steps: int, score: int, success: bool, epsilon: float, bitmask: int):
 
         # add values to vars
         cls.steps_sum += steps
         cls.score_sum += score
         cls.success_sum += success
         cls.epsilon_sum += epsilon
+        cls.bitmask_sum += bitmask.bit_count()
 
         if (episode % Settings.logging_steps == 0               # only if it's a step of logging_steps
                 or episode == Settings.episodes + 1):           # or last run
@@ -186,6 +189,7 @@ class Logger:
             avg_score = cls.score_sum / passed_episodes
             avg_success = cls.success_sum / passed_episodes
             avg_epsilon = cls.epsilon_sum / passed_episodes
+            avg_bitmask = cls.bitmask_sum / passed_episodes
 
             index: int = episode // Settings.logging_steps
 
@@ -197,6 +201,7 @@ class Logger:
                 cls.score_avg.append([])
                 cls.success_avg.append([])
                 cls.epsilon_avg.append([])
+                cls.bitmask_avg.append([])
 
             # add the values to a list; like this:
             # [ [maze_0_avg, maze_1_avg, ... ]      0 - 100
@@ -209,6 +214,7 @@ class Logger:
             cls.score_avg[index].append(avg_score)
             cls.success_avg[index].append(avg_success)
             cls.epsilon_avg[index].append(avg_epsilon)
+            cls.bitmask_avg[index].append(avg_bitmask)
 
             cls.last_episodes.add((cls.last_episode, episode))
             cls.last_episode = episode
@@ -218,6 +224,7 @@ class Logger:
             cls.score_sum = 0
             cls.success_sum = 0
             cls.epsilon_sum = 0
+            cls.bitmask_sum = 0
 
 
     # logs average values among the mazes and episodes
@@ -236,10 +243,11 @@ class Logger:
                 avg_score = sum(cls.score_avg[i]) / len(cls.score_avg[i])
                 avg_success = sum(cls.success_avg[i]) / len(cls.success_avg[i])
                 avg_epsilon = sum(cls.epsilon_avg[i]) / len(cls.epsilon_avg[i])
+                avg_bitmask = sum(cls.bitmask_avg[i]) / len(cls.bitmask_avg[i])
                 if not avg_epsilon == 0:                                        # final run without epsilon
                     avg_epsilon = max(avg_epsilon, Settings.epsilon_min)        # real epsilon is changed by epsilon_min
 
-                writer.writerow([f"{obj[0]}-{obj[1]}", avg_steps, avg_score, avg_success, avg_epsilon])
+                writer.writerow([f"{obj[0]}-{obj[1]}", avg_steps, avg_score, avg_success, avg_epsilon, avg_bitmask])
 
 
     @classmethod
@@ -250,6 +258,7 @@ class Logger:
         cls.score_sum = 0
         cls.success_sum = 0
         cls.epsilon_sum = 0
+        cls.bitmask_sum = 0
         cls.states.clear()
         cls.actions.clear()
         cls.new_states.clear()

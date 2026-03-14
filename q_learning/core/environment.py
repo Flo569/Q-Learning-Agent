@@ -80,7 +80,7 @@ class Gridworld:
 
     def start_run(self, episode: int, filename: str):
 
-        state = tuple((self.agent.position, self.agent.collected_mask))         # initial state – (x, y)
+        state = tuple((self.agent.position, self.agent.collected_mask))         # initial state – ((x, y), bitmask)
 
         while True:
             self.agent.steps += 1
@@ -133,5 +133,6 @@ class Gridworld:
 
             if done:
                 if Settings.output_in_csv:
-                    Logger.log_episode(episode, self.agent.steps, self.agent.score, success, self.agent.epsilon_main)
+                    Logger.log_episode(episode, self.agent.steps, self.agent.score, success, self.agent.epsilon_main,
+                                       self.agent.collected_mask)
                 break

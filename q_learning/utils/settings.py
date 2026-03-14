@@ -28,33 +28,34 @@ class Settings:
         "avg_steps",
         "avg_score",
         "avg_success",
-        "avg_epsilon"
+        "avg_epsilon",
+        "avg_collected"
     ]
 
-    filename: str = "Test"
-    maze_directory: str = "default"         # directory used for maze-pool; relative to q_learning/mazes/
-    log_maze: str = "maze_0.txt"            # file or maze you want to track (in directory)
+    filename: str = "Bonus"
+    maze_directory: str = "test"           # directory used for maze-pool; relative to q_learning/mazes/
+    log_maze: str = "bonus_0.txt"           # file or maze you want to track (in directory)
 
     output_in_csv: bool = True              # if True -> .csv will be created
 
-    logging_steps: int = 100
+    logging_steps: int = 1000
 
     # Training
-    episodes: int = 1000
+    episodes: int = 10000
     max_steps_per_episode: int = 500
 
     # Agent-parameters – usual between 0-1
     alpha: float = 0.3
-    gamma: float = 0.8
+    gamma: float = 0.99
     epsilon_main: float = 1                 # start value
-    epsilon_decay: float = 0.995            # multiplier
-    epsilon_min: float = 0.1
+    epsilon_decay: float = 0.9995            # multiplier
+    epsilon_min: float = 0.3
 
     # Rewards
     step_reward: int = -1                   # reward used after each step
-    goal_reward: int = 100                  # reward used after reaching the goal
+    goal_reward: int = 2000                  # reward used after reaching the goal
     invalid_reward: int = -10               # reward used for invalid actions (wall)
-    bonus_reward: int = 10                  # reward used after reaching a bonus item
+    bonus_reward: int = 500                 # reward used after reaching a bonus item
 
 
     ### From here on, there are methods that are not important for configuration.
