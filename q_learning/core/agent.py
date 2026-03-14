@@ -41,9 +41,8 @@ class Agent:
 
         for x in range(columns):
             for y in range(rows):
-                for bonus_mask in range(2**len(Settings.bonus_pos)):
-                     for action in self.actions:
-                         self.q_table[(((x, y), bonus_mask), action)] = 0
+                for action in self.actions:
+                    self.q_table[((x, y), action)] = 0
 
         for bonus in Settings.bonus_pos:
             self.bonus_pos_bit[bonus] = 2**(Settings.bonus_pos.index(bonus))

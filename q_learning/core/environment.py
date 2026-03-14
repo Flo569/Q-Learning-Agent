@@ -80,7 +80,7 @@ class Gridworld:
 
     def start_run(self, episode: int, filename: str):
 
-        state = tuple((self.agent.position, self.agent.collected_mask))         # initial state – ((x, y), bitmask)
+        state = tuple(self.agent.position)         # initial state – (x, y)
 
         while True:
             self.agent.steps += 1
@@ -97,7 +97,7 @@ class Gridworld:
             x, y = self.agent.position
             if (x < 0 or x >= self.columns) or (y < 0 or y >= self.rows) or ((x, y) in self.walls_pos):
                 reward += Settings.invalid_reward
-                self.agent.position, self.agent.collected_mask = state
+                self.agent.position = state
 
             # check for bonus item
             elif (x, y) in self.bonus_pos:
@@ -112,7 +112,7 @@ class Gridworld:
                 success = True
 
             # update state and learn
-            new_state = (self.agent.position, self.agent.collected_mask)
+            new_state = self.agent.position
 
             self.agent.score += reward
 
