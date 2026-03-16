@@ -1,4 +1,0 @@
-maze_directory,episodes,max_steps_per_episode,alpha,gamma,epsilon_main,epsilon_decay,epsilon_min,step_reward,goal_reward,invalid_reward,bonus_reward
-default,1000,500,0.3,0.8,1,0.995,0.1,-1,100,-10,10
-
-episode,avg_steps,avg_score,avg_success,avg_epsilon

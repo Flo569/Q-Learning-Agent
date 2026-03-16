@@ -32,7 +32,7 @@ class Settings:
     ]
 
     filename: str = "Test"
-    maze_directory: str = "default"         # directory used for maze-pool; relative to q_learning/mazes/
+    maze_directory: str = "11x11"         # directory used for maze-pool; relative to q_learning/mazes/
     log_maze: str = "maze_0.txt"            # file or maze you want to track (in directory)
 
     output_in_csv: bool = True              # if True -> .csv will be created

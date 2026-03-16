@@ -56,7 +56,7 @@ class VisualGridworld(Gridworld):
         trail: list = []
 
         while True:
-            # honour pause / reset signals from the browser
+            # honor pause / reset signals from the browser
             while not _control["running"]:
                 time.sleep(0.05)
                 if _control["reset"]:
