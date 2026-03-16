@@ -38,10 +38,10 @@ class Settings:
 
     output_in_csv: bool = True              # if True -> .csv will be created
 
-    logging_steps: int = 1000
+    logging_steps: int = 100
 
     # Training
-    episodes: int = 10000
+    episodes: int = 1000
     max_steps_per_episode: int = 500
 
     # Agent-parameters – usual between 0-1
