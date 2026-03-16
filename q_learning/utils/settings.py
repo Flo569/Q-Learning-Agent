@@ -32,7 +32,7 @@ class Settings:
     ]
 
     filename: str = "Test"
-    maze_directory: str = "default"         # directory used for maze-pool; relative to q_learning/mazes/
+    maze_directory: str = "11x11"         # directory used for maze-pool; relative to q_learning/mazes/
     log_maze: str = "maze_0.txt"            # file or maze you want to track (in directory)
 
     output_in_csv: bool = True              # if True -> .csv will be created
@@ -40,14 +40,14 @@ class Settings:
     logging_steps: int = 100
 
     # Training
-    episodes: int = 1000
+    episodes: int = 10000
     max_steps_per_episode: int = 500
 
     # Agent-parameters – usual between 0-1
     alpha: float = 0.3
-    gamma: float = 0.8
+    gamma: float = 0.9
     epsilon_main: float = 1                 # start value
-    epsilon_decay: float = 0.995            # multiplier
+    epsilon_decay: float = 0.9          # multiplier
     epsilon_min: float = 0.1
 
     # Rewards

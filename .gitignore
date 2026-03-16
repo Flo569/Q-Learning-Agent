@@ -4,3 +4,6 @@
 /mazes/*
 !mazes/default/
 *.pyc
+*/.DS_Store
+.DS_Store
+/q_learning/logs/
