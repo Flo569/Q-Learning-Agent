@@ -55,7 +55,8 @@ class Agent:
         self.steps = 0
         self.collected_mask = 0
         self.position = start_pos
-        self.epsilon_main *= max(self.epsilon_decay, self.epsilon_min)
+        self.epsilon_main *= self.epsilon_decay
+        self.epsilon_main = max(self.epsilon_main, self.epsilon_min)
 
 
     def choose_action(self, state: tuple):

@@ -1,250 +1,145 @@
-"""
-viz_server.py  –  place this file at your project root (same level as main.py)
-
-Run with:
-    python viz_server.py
-
-Then open http://localhost:8080 in your browser.
-
-Subclasses Gridworld so ALL logging (CSV, q_table, layout, detailed_log)
-works exactly as when you run main.py — nothing is skipped.
-
-Requirements:
-    pip install flask
-"""
-
 import json
-import os
 import queue
 import threading
 import time
 
 from flask import Flask, Response, render_template_string
 
-from q_learning.utils.settings import Settings, implement_layout
-from q_learning.utils.logger import Logger
-from q_learning.core.agent import Agent
-from q_learning.core.environment import Gridworld
+from q_learning.utils.settings import Settings
 
-app = Flask(__name__)
-
-_event_queue: queue.Queue = queue.Queue(maxsize=600)
-_control: dict = {"running": False, "reset": False, "speed": 2}
-_SPEED_DELAY = [0.45, 0.09, 0.03, 0.008, 0.0]
+SPEED_DELAY = [0.45, 0.09, 0.03, 0.008, 0.004, 0.0]
 
 
-def _push(event: dict):
-    try:
-        _event_queue.put_nowait(event)
-    except queue.Full:
-        pass
+class Visualizer:
 
+    def __init__(self, host="0.0.0.0", port=8080):
+        self.running = False
+        self.host = host
+        self.port = port
+        self.event_queue: queue.Queue = queue.Queue(maxsize=600)
+        self.control: dict = {"running": False, "reset": False, "speed": 2}
 
-# ---------------------------------------------------------------------------
-# Subclass — only start_run is overridden to push SSE events.
-# All Logger calls (log_details, log_episode, log_layout, final_log …)
-# stay inside the original methods and are NOT touched.
-# ---------------------------------------------------------------------------
-class VisualGridworld(Gridworld):
+        self.app = Flask(__name__)
+        self.setup_routes()
 
-    def start_run(self, episode: int, filename: str):
-        """
-        Same logic as the original environment.py start_run +
-        _push() calls so the browser sees every step live.
-        """
-        state = tuple(self.agent.position)
-        trail: list = []
+    def init(self, filename: str):
+        try:
+            self.event_queue.put_nowait({
+                "type": "maze",
+                "layout": Settings.layout,
+                "filename": filename
+            })
+        except queue.Full:
+            pass
 
-        while True:
-            # honor pause / reset signals from the browser
-            while not _control["running"]:
-                time.sleep(0.05)
-                if _control["reset"]:
-                    return
-            if _control["reset"]:
-                return
+    def shutdown(self):
+        try:
+            self.event_queue.put_nowait({"type": "training_done"})
+        except queue.Full:
+            pass
 
-            self.agent.steps += 1
-            reward: int = 0
-            done: bool = False
-            success: bool = False
+    def start(self):
+        """Startet Flask-Server in eigenem Thread"""
+        self.running = True
+        thread = threading.Thread(target=self.run_server, daemon=True)
+        thread.start()
 
-            action: str = self.agent.choose_action(state)
-            self.agent.move(action)
-            reward += Settings.step_reward
+    def stop(self):
+        """Stoppt Visualizer (nur Flag; Flask Thread läuft weiter)"""
+        self.running = False
 
-            x, y = self.agent.position
-            if (x < 0 or x >= self.columns) or \
-               (y < 0 or y >= self.rows) or \
-               ((x, y) in self.walls_pos):
-                reward += Settings.invalid_reward
-                self.agent.position = state
-                x, y = state
-
-            elif (x, y) in self.bonus_pos:
-                reward += Settings.bonus_reward
-                self.bonus_pos.remove((x, y))
-
-            elif self.goal_pos == (x, y):
-                reward += Settings.goal_reward
-                done = True
-                success = True
-
-            new_state = self.agent.position
-            self.agent.score += reward
-            trail.append([x, y])
-
-            if done:
-                self.agent.terminal_learn(state, action, reward)
-            else:
-                self.agent.learn(state, action, reward, new_state)
-                state = tuple(new_state)
-
-            if self.agent.steps >= Settings.max_steps_per_episode:
-                done = True
-                success = False
-
-            # ---- original Logger calls (identical to environment.py) ----
-            if Settings.output_in_csv:
-                Logger.log_details(filename, done, episode,
-                                   state, action, reward, new_state,
-                                   self.agent.q_table)
-
-            # ---- push step event to browser ----
-            _push({
+    def update(self, agent_pos: tuple, episode: int, steps: int, epsilon: float, reward: int,
+               score: int, bonus_pos: list, trail: list, done: bool, success: bool):
+        """Empfängt Schritt-Daten vom Environment und pusht in Event-Queue"""
+        if not self.running:
+            return
+        try:
+            x, y = agent_pos
+            self.event_queue.put_nowait({
                 "type": "step",
                 "x": x, "y": y,
                 "episode": episode,
-                "step": self.agent.steps,
-                "epsilon": round(self.agent.epsilon_main, 4),
+                "step": steps,
+                "epsilon": epsilon,
                 "reward": reward,
-                "score": self.agent.score,
-                "bonus_pos": [[b[0], b[1]] for b in self.bonus_pos],
+                "score": score,
+                "bonus_pos": [[b[0], b[1]] for b in bonus_pos],
                 "trail": trail[-25:],
                 "done": done,
                 "won": done and success,
             })
 
             # speed throttle
-            d = _SPEED_DELAY[max(0, min(4, _control["speed"] - 1))]
+            d = SPEED_DELAY[max(0, min(len(SPEED_DELAY) - 1, self.control["speed"] - 1))]
             if d > 0:
                 time.sleep(d)
+        except queue.Full:
+            pass
 
-            if done:
-                if Settings.output_in_csv:
-                    Logger.log_episode(episode, self.agent.steps,
-                                       self.agent.score, success,
-                                       self.agent.epsilon_main)
-                break
+    def run_server(self):
+        """Startet Flask-App"""
+        self.app.run(host=self.host, port=self.port, threaded=True, use_reloader=False)
 
-
-# ---------------------------------------------------------------------------
-# Background training thread — mirrors environment.py train() exactly
-# ---------------------------------------------------------------------------
-def _training_loop():
-    agent = Agent()
-    world = VisualGridworld(agent)
-
-    world.reset()
-
-    if Settings.output_in_csv:
-        Logger.init_logger()
-
-    files = sorted(os.listdir(f"mazes/{Settings.maze_directory}"))
-
-    for filename in files:
-        if _control["reset"]:
+    def pause(self):
+        while not self.control["running"]:
+            time.sleep(0.05)
+            if self.control["reset"]:
+                return
+        if self.control["reset"]:
             return
 
-        implement_layout(filename)
-        Logger.log_layout(filename)
-
-        world.reset()
-        agent.init(world.rows, world.columns)
-
-        _push({"type": "maze", "layout": Settings.layout, "filename": filename})
-        print(f"Visualizer: training on {filename}")
-
-        for i in range(Settings.episodes):
-            if _control["reset"]:
-                return
-            if i % max(1, int(Settings.episodes * 0.1)) == 0:
-                print(f"  {round(i / Settings.episodes * 100)}%")
-            world.reset()
-            world.start_run(i + 1, filename)
-
-        # final greedy run
-        world.reset()
-        agent.epsilon_main = 0
-        agent.epsilon_min = 0
-        world.start_run(Settings.episodes + 1, filename)
-
-        print(f"  {filename} complete")
-        Logger.reset()
-
-    Logger.final_log()
-    _push({"type": "training_done"})
-    print("All mazes done — CSV logs written to /logs/")
-
-
-_training_thread: threading.Thread | None = None
-
-
-def _restart_training():
-    global _training_thread
-    _control["reset"] = False
-    _control["running"] = False
-    while not _event_queue.empty():
-        try:
-            _event_queue.get_nowait()
-        except queue.Empty:
-            break
-    _training_thread = threading.Thread(target=_training_loop, daemon=True)
-    _training_thread.start()
-
-
-# ---------------------------------------------------------------------------
-# Flask routes
-# ---------------------------------------------------------------------------
-@app.route("/")
-def index():
-    return render_template_string(_HTML,
-        alpha=Settings.alpha,
-        gamma=Settings.gamma,
-        epsilon_main=Settings.epsilon_main,
-        epsilon_decay=Settings.epsilon_decay,
-        epsilon_min=Settings.epsilon_min,
-        episodes=Settings.episodes,
-    )
-
-
-@app.route("/stream")
-def stream():
-    def generate():
-        while True:
+    def restart_training(self):
+        self.control["reset"] = False
+        self.control["running"] = False
+        while not self.event_queue.empty():
             try:
-                event = _event_queue.get(timeout=5)
-                yield f"data: {json.dumps(event)}\n\n"
+                self.event_queue.get_nowait()
             except queue.Empty:
-                yield 'data: {"type":"ping"}\n\n'
-    return Response(generate(), mimetype="text/event-stream",
-                    headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+                break
 
+    # ---------------------------------------------------------------------------
+    # Flask routes
+    # ---------------------------------------------------------------------------
 
-@app.route("/control/<action>")
-def control(action: str):
-    if action == "run":
-        _control["running"] = True
-    elif action == "pause":
-        _control["running"] = False
-    elif action == "reset":
-        _control["reset"] = True
-        _control["running"] = False
-        _restart_training()
-    elif action.startswith("speed"):
-        _control["speed"] = int(action[-1])
-    return "ok"
+    def setup_routes(self):
 
+        @self.app.route("/stream")
+        def stream():
+            def generate():
+                while True:
+                    try:
+                        event = self.event_queue.get(timeout=5)
+                        yield f"data: {json.dumps(event)}\n\n"
+                    except queue.Empty:
+                        yield 'data: {"type":"ping"}\n\n'
+
+            return Response(generate(), mimetype="text/event-stream",
+                            headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+        @self.app.route("/control/<action>")
+        def control(action: str):
+            if action == "run":
+                self.control["running"] = True
+            elif action == "pause":
+                self.control["running"] = False
+            elif action == "reset":
+                self.control["reset"] = True
+                self.control["running"] = False
+                self.restart_training()
+            elif action.startswith("speed"):
+                self.control["speed"] = int(action[-1])
+            return "ok"
+
+        @self.app.route("/")
+        def index():
+            return render_template_string(_HTML,
+                                          alpha=Settings.alpha,
+                                          gamma=Settings.gamma,
+                                          epsilon_main=Settings.epsilon_main,
+                                          epsilon_decay=Settings.epsilon_decay,
+                                          epsilon_min=Settings.epsilon_min,
+                                          episodes=Settings.episodes,
+                                          )
 
 # ---------------------------------------------------------------------------
 # HTML / CSS / JS
@@ -266,8 +161,20 @@ _HTML = """<!DOCTYPE html>
   .card{background:#111827;border:0.5px solid #1e2a3a;border-radius:8px;padding:9px 13px}
   .card .lbl{font-size:10px;color:#64748b;letter-spacing:.06em;margin-bottom:2px}
   .card .val{font-size:22px;font-weight:500;color:#e2e8f0;font-variant-numeric:tabular-nums}
-  #bars{height:36px;display:flex;align-items:flex-end;gap:1.5px;padding-top:4px}
-  .bar{flex:1;min-width:1.5px;border-radius:1px 1px 0 0}
+  #bars{
+  height:36px;
+  display:flex;
+  align-items:flex-end;
+  gap:1px;
+  padding-top:4px;
+  overflow:hidden;
+}
+
+.bar{
+  flex:1;
+  min-width:0;
+  border-radius:1px 1px 0 0;
+}
   #controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
   button{background:transparent;border:0.5px solid #334155;color:#94a3b8;border-radius:6px;padding:5px 14px;font-size:12px;font-family:inherit;cursor:pointer;transition:background .15s}
   button:hover{background:#1e2a3a;color:#e2e8f0}
@@ -313,14 +220,15 @@ _HTML = """<!DOCTYPE html>
 
 <div id="controls">
   <button onclick="setRun(true)">▶ Run</button>
-  <button onclick="setRun(false)">⏸ Pause</button>
+  <button onclick="setRun(false)">❚❚ Pause</button>
   <button onclick="doReset()">↺ Reset</button>
   <span style="font-size:11px;color:#64748b;margin-left:4px">Speed:</span>
   <button class="active" id="s1" onclick="setSpeed(1)">·</button>
   <button id="s2" onclick="setSpeed(2)">··</button>
   <button id="s3" onclick="setSpeed(3)">···</button>
   <button id="s4" onclick="setSpeed(4)">····</button>
-  <button id="s5" onclick="setSpeed(5)">Max</button>
+  <button id="s5" onclick="setSpeed(5)">·····</button>
+  <button id="s6" onclick="setSpeed(6)">Max</button>
   <span id="milestone"></span>
 </div>
 
@@ -347,7 +255,7 @@ function setRun(r){fetch('/control/'+(r?'run':'pause'));}
 function doReset(){fetch('/control/reset').then(()=>location.reload());}
 function setSpeed(s){
   fetch('/control/speed'+s);
-  for(let i=1;i<=5;i++)document.getElementById('s'+i).classList.toggle('active',i===s);
+  for(let i=1;i<=6;i++)document.getElementById('s'+i).classList.toggle('active',i===s);
 }
 
 function draw(){
@@ -438,8 +346,3 @@ es.onmessage=ev=>{
 </body>
 </html>
 """
-
-if __name__ == "__main__":
-    _restart_training()
-    print("\n  Q-Learning Visualizer →  http://localhost:8080\n")
-    app.run(host="0.0.0.0", port=8080, threaded=True, use_reloader=False)
