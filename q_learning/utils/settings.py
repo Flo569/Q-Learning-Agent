@@ -74,12 +74,18 @@ class Settings:
 
 
     @classmethod
-    def start(cls):
+    def start(cls, visualizer: bool):
         from q_learning.core.agent import Agent
         agent = Agent()
 
+        from q_learning.tools.visualizer import Visualizer
+        if visualizer:
+            visualizer = Visualizer()
+        else:
+            visualizer = None
+
         from q_learning.core.environment import Gridworld
-        world = Gridworld(agent)
+        world = Gridworld(agent, visualizer)
 
         world.train(cls.episodes)
 
