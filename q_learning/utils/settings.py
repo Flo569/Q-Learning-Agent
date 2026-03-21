@@ -32,16 +32,16 @@ class Settings:
     ]
 
     filename: str = "Test"
-    maze_directory: str = "11x11"         # directory used for maze-pool; relative to q_learning/mazes/
+    maze_directory: str = "default"         # directory used for maze-pool; relative to q_learning/mazes/
     log_maze: str = "maze_0.txt"            # file or maze you want to track (in directory)
 
     output_in_csv: bool = True              # if True -> .csv will be created
 
-    logging_steps: int = 100
+    logging_steps: int = 10
 
     # Training
-    episodes: int = 10000
-    max_steps_per_episode: int = 500
+    episodes: int = 100
+    max_steps_per_episode: int = 100
 
     # Agent-parameters – usual between 0-1
     alpha: float = 0.3
@@ -73,12 +73,18 @@ class Settings:
 
 
     @classmethod
-    def start(cls):
+    def start(cls, visualizer: bool):
         from q_learning.core.agent import Agent
         agent = Agent()
 
+        from q_learning.tools.visualizer import Visualizer
+        if visualizer:
+            visualizer = Visualizer()
+        else:
+            visualizer = None
+
         from q_learning.core.environment import Gridworld
-        world = Gridworld(agent)
+        world = Gridworld(agent, visualizer)
 
         world.train(cls.episodes)
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import copy
 
+from q_learning.tools.visualizer import Visualizer
 from q_learning.utils.logger import Logger
 from q_learning.utils.settings import Settings
 from q_learning.utils.settings import implement_layout
@@ -14,9 +15,10 @@ if TYPE_CHECKING:
 
 class Gridworld:
 
-    def __init__(self, agent):
+    def __init__(self, agent, visualizer: Visualizer | None = None):
 
         self.agent: Agent = agent
+        self.visualizer = visualizer
 
         self.columns: int = Settings.columns
         self.rows: int = Settings.rows
@@ -25,6 +27,8 @@ class Gridworld:
         self.goal_pos = None
         self.walls_pos = None
         self.bonus_pos = None
+
+        self.trail: list = []
 
 
     # resets environment and agent for a new run
@@ -43,6 +47,9 @@ class Gridworld:
 
         self.reset()
 
+        if self.visualizer:
+            self.visualizer.start()
+
         if Settings.output_in_csv:
             Logger.init_logger()
 
@@ -53,6 +60,9 @@ class Gridworld:
 
             self.reset()
             self.agent.init(self.rows, self.columns)        # reset agent to default values
+
+            if self.visualizer:
+                self.visualizer.init(filename)
 
             print(f"Start solving {filename}!")
 
@@ -76,13 +86,20 @@ class Gridworld:
             Logger.reset()
 
         Logger.final_log()
+        if self.visualizer:
+            self.visualizer.shutdown()
 
 
     def start_run(self, episode: int, filename: str):
 
+        self.trail = []
         state = tuple(self.agent.position)         # initial state – (x, y)
 
         while True:
+
+            if self.visualizer:
+                self.visualizer.pause()
+
             self.agent.steps += 1
             reward: int = 0
             done: bool = False
@@ -92,6 +109,8 @@ class Gridworld:
             action: str = self.agent.choose_action(state)
             self.agent.move(action)
             reward += Settings.step_reward
+
+            self.trail.append(list(self.agent.position))
 
             # check invalid action -> outside the world or wall
             x, y = self.agent.position
@@ -129,6 +148,22 @@ class Gridworld:
             # log this run
             if Settings.output_in_csv:
                 Logger.log_details(filename, done, episode, state, action, reward, new_state, self.agent.q_table)
+
+            # visualizer
+            if self.visualizer:
+                self.visualizer.update(
+                    self.agent.position,
+                    episode,
+                    self.agent.steps,
+                    self.agent.epsilon_main,
+                    reward,
+                    self.agent.score,
+                    self.bonus_pos,
+                    self.trail,
+                    done,
+                    success
+                )
+
 
             if done:
                 if Settings.output_in_csv:
