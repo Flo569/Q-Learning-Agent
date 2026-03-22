@@ -3,6 +3,10 @@
 /logs/
 /mazes/*
 !mazes/default/
+!mazes/11x11/
+!mazes/51x51/
+!mazes/open_mazes/
+!mazes/empty/
 *.pyc
 */.DS_Store
 .DS_Store
