@@ -3,6 +3,8 @@
 /logs/
 /mazes/*
 !mazes/default/
+!mazes/bonus/
+!/mazes/bonus_near/
 *.pyc
 */.DS_Store
 .DS_Store
