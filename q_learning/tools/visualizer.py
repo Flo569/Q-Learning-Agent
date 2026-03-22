@@ -193,7 +193,12 @@ _HTML = """<!DOCTYPE html>
 </style>
 </head>
 <body>
-<h1>Q-Learning Visualizer <span id="log-badge">CSV logging active</span></h1>
+<h1>Q-Learning Visualizer <span id="log-badge"
+      style="color: {{ ' #4ade80 ' if csv_active else ' #f87171 ' }};
+             background: {{ ' #0a1f0a ' if csv_active else ' #1f0a0a ' }};
+             border-color: {{ ' #166534 ' if csv_active else ' #7f1d1d ' }}">
+  {{ 'CSV logging active' if csv_active else 'CSV logging off' }}
+</span></h1>
 <div id="maze-name">Press Run to start…</div>
 <div id="wrap">
   <canvas id="canvas"></canvas>
