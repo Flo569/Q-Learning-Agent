@@ -56,7 +56,9 @@ class Gridworld:
         files: list = sorted(os.listdir(f"mazes/{Settings.maze_directory}"))
         for filename in files:                              # train for every maze
             implement_layout(filename)                      # load maze
-            Logger.log_layout(filename)                     # update logger
+
+            if Settings.output_in_csv:
+                Logger.log_layout(filename)                     # update logger
 
             self.reset()
             self.agent.init(self.rows, self.columns)        # reset agent to default values
@@ -83,9 +85,11 @@ class Gridworld:
             self.agent.epsilon_min = 0
             self.start_run(episodes+1, filename)
 
-            Logger.reset()
+            if Settings.output_in_csv:
+                Logger.reset()
 
-        Logger.final_log()
+        if Settings.output_in_csv:
+            Logger.final_log()
         if self.visualizer:
             self.visualizer.shutdown()
 
