@@ -56,7 +56,6 @@ class Gridworld:
         files: list = sorted(os.listdir(f"mazes/{Settings.maze_directory}"))
         for filename in files:                              # train for every maze
             implement_layout(filename)                      # load maze
-
             if Settings.output_in_csv:
                 Logger.log_layout(filename)                     # update logger
 
