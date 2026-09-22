@@ -33,8 +33,8 @@ class Settings:
     ]
 
     filename: str = "Test"
-    maze_directory: str = "default"           # directory used for maze-pool; relative to q_learning/mazes/
-    log_maze: str = "maze_0.txt"           # file or maze you want to track (in directory)
+    maze_directory: str = "bonus"           # directory used for maze-pool; relative to q_learning/mazes/
+    log_maze: str = "bonus_0.txt"           # file or maze you want to track (in directory)
 
     output_in_csv: bool = False              # if True -> .csv will be created
 
@@ -48,7 +48,7 @@ class Settings:
     alpha: float = 0.3
     gamma: float = 0.99
     epsilon_main: float = 1                 # start value
-    epsilon_decay: float = 0.9995            # multiplier
+    epsilon_decay: float = 0.995            # multiplier
     epsilon_min: float = 0.3
 
     # Rewards
