@@ -6,7 +6,7 @@ der für mehrere Experimente genutzt wurde.
 
 ---
 
-![Beispiel eines Labyrinths](docs/images/pre-view.png)
+![Beispiel eines Labyrinths](images/pre-view.png)
 
 ---
 
@@ -18,12 +18,14 @@ der für mehrere Experimente genutzt wurde.
 - Labyrinth-Generator
 - Labyrinth-Visualisierung
 
+---
 
 ## Voraussetzungen
 
 - Python 3
 - Flask
 
+---
 
 ## Installation
 
@@ -46,7 +48,7 @@ gewünschte Branch ausgewählt werden.
 Das Repository kann über den Button **Code → Download ZIP** heruntergeladen
 werden. Danach muss die ZIP-Datei entpackt werden.
 
-Alternativ kann das Repository über Git mit folgenden Befehl im Terminal installiert
+Alternativ kann das Repository über Git mit folgendem Befehl im Terminal installiert
 werden:
 
 ```bash
@@ -54,6 +56,10 @@ git clone https://github.com/Flo569/Q-Learning-Agent
 ```
 
 ### 3. Virtuelle Umgebung einrichten
+
+Dieser Schritt ist nicht notwendig, um das Programm zu starten und kann übersprungen
+werden. Allerdings emphielt es sich ihn durchzuführen, um mögliche Konflikte mit
+anderen Python-Programmen vorzubeugen.
 
 Öffne ein Terminal im Ordner des heruntergeladenen Repositories:
 
@@ -98,14 +104,15 @@ python -m pip install flask
 python3 -m pip install flask
 ```
 
+---
 
 ## Anwendung
 
 Nach der Installation kann das Programm gestartet werden.
 
-1. Gehe in den heruntergeladenen Ordner
-2. Wechsel in den Unterordner **q_learning**
-3. Starte ein Terminal aus diesem Ordner
+1. Gehe in den heruntergeladenen Hauptordner
+2. Starte ein Terminal aus diesem Ordner
+3. Aktiviere die virtuelle Umgebung (siehe oben)
 4. Das Programm kann mit und ohne Visualisierung gestartet werden
 
 **Hinweis:** In der Datei `q_learning/utils/settings.py` können verschiedene
@@ -117,12 +124,12 @@ Parameter vor dem Start angepasst werden.
 
 **Windows**
 ```bash
-python main.py
+python -m q_learning.main
 ```
 
 **macOS / Linux**
 ```bash
-python3 main.py
+python3 -m q_learning.main
 ```
 
 Nach Abschluss des Trainings wird ein Ordner mit den Trainingsdaten und Ergebnissen
@@ -133,24 +140,25 @@ erstellt.
 
 **Windows**
 ```bash
-python visualizer_main.py
+python -m q_learning.visualizer_main
 ```
 
 **macOS / Linux**
 ```bash
-python3 visualizer_main.py
+python3 -m q_learning.visualizer_main
 ```
 
-Im Terminal erscheint eine Nachricht. Öffne den angezeigten Link:
+Im Terminal erscheint eine Nachricht. Öffne den angezeigten Link in einem Browser:
 * Running on http://127.0.0.1:8080
 
-Ein Fenster im Browser öffnet sich. Von dort aus kann der Start-Knopf gedrückt
-werden und das Training beginnt.
+Von dort aus kann der Start-Knopf gedrückt werden und das Training beginnt.
 
 ### Beenden
 
 Um das Programm während der Laufzeit vorzeitig zu beenden, drücke im
 Terminal **Strg + C** oder auf macOS **Control (^) + C** 
+
+---
 
 ## Branches
 Dieses Repository beinhaltet verschiedene Branches für verschiedene Experimente.
@@ -162,6 +170,8 @@ Dieses Repository beinhaltet verschiedene Branches für verschiedene Experimente
 |   no_bonus_knowledge   |                  x- und y-Koordinate                   |      ja       |
 
 Jeder Branch kommt mit einem eigenen Set an vorgebauten Labyrinthen.
+
+---
 
 ## Lizenz
 
