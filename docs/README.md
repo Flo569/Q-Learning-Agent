@@ -6,7 +6,7 @@ der für mehrere Experimente genutzt wurde.
 
 ---
 
-![Beispiel eines Labyrinths](docs/images/pre-view.png)
+![Beispiel eines Labyrinths](images/pre-view.png)
 
 ---
 
@@ -18,12 +18,14 @@ der für mehrere Experimente genutzt wurde.
 - Labyrinth-Generator
 - Labyrinth-Visualisierung
 
+---
 
 ## Voraussetzungen
 
 - Python 3
 - Flask
 
+---
 
 ## Installation
 
@@ -54,6 +56,10 @@ git clone https://github.com/Flo569/Q-Learning-Agent
 ```
 
 ### 3. Virtuelle Umgebung einrichten
+
+Dieser Schritt ist nicht notwendig, um das Programm zu starten und kann übersprungen
+werden. Allerdings emphielt es sich ihn durchzuführen, um mögliche Konflikte mit
+anderen Python-Programmen vorzubeugen.
 
 Öffne ein Terminal im Ordner des heruntergeladenen Repositories:
 
@@ -98,6 +104,7 @@ python -m pip install flask
 python3 -m pip install flask
 ```
 
+---
 
 ## Anwendung
 
@@ -151,6 +158,8 @@ Von dort aus kann der Start-Knopf gedrückt werden und das Training beginnt.
 Um das Programm während der Laufzeit vorzeitig zu beenden, drücke im
 Terminal **Strg + C** oder auf macOS **Control (^) + C** 
 
+---
+
 ## Branches
 Dieses Repository beinhaltet verschiedene Branches für verschiedene Experimente.
 
@@ -161,6 +170,8 @@ Dieses Repository beinhaltet verschiedene Branches für verschiedene Experimente
 |   no_bonus_knowledge   |                  x- und y-Koordinate                   |      ja       |
 
 Jeder Branch kommt mit einem eigenen Set an vorgebauten Labyrinthen.
+
+---
 
 ## Lizenz
 
