@@ -6,7 +6,7 @@ der für mehrere Experimente genutzt wurde.
 
 ---
 
-![Beispiel eines Labyrinths](docs/images/pre-view.png)
+![Beispiel eines Labyrinths](images/pre-view.png)
 
 ---
 
