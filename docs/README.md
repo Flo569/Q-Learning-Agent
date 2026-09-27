@@ -58,7 +58,7 @@ git clone https://github.com/Flo569/Q-Learning-Agent
 ### 3. Virtuelle Umgebung einrichten
 
 Dieser Schritt ist nicht notwendig, um das Programm zu starten und kann übersprungen
-werden. Allerdings emphielt es sich ihn durchzuführen, um mögliche Konflikte mit
+werden. Allerdings emphiehlt es sich ihn durchzuführen, um mögliche Konflikte mit
 anderen Python-Programmen vorzubeugen.
 
 Öffne ein Terminal im Ordner des heruntergeladenen Repositories:
